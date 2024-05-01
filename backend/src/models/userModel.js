@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { defaultImagePath } = require("../secret");
 
 const userSchema = new Schema(
@@ -28,13 +28,11 @@ const userSchema = new Schema(
       type: String,
       required: [true, "password is required"],
       minlength: [5, "minimum length of password is 5 characters"],
-      set: (v) => {
-        bcrypt.hashSync(v, bcrypt.genSaltSync(9));
-      },
+      set: (v) => bcrypt.hashSync(v, bcrypt.genSaltSync(10)),
     },
     image: {
       type: String,
-      defaultImagePath,
+      default: defaultImagePath,
     },
     address: {
       type: String,
@@ -58,4 +56,6 @@ const userSchema = new Schema(
 
 const User = model("Users", userSchema);
 
-module.exports = User;
+module.exports = {
+  User,
+};
