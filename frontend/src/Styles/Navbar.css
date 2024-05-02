@@ -10,6 +10,7 @@
 .navLink {
   text-decoration: none;
   color: black;
+  font-weight: bold;
   margin-left: 20px; /* Adjust the spacing between links */
 }
 

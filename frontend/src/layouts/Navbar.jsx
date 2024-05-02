@@ -19,12 +19,9 @@ const Navbar = () => {
           <NavLink to="/cart" className="navLink">
             Cart
           </NavLink>
-          <NavLink to="/profile" className="navLink">
+          {/* <NavLink to="/profile" className="navLink">
             Profile
-          </NavLink>
-          <NavLink to="/logout" className="navLink">
-            Logout
-          </NavLink>
+          </NavLink> */}
         </div>
       </div>
     </nav>

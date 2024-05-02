@@ -7,6 +7,10 @@ const AppRoutes = ({ products, searchTerm }) => {
   return (
     <Routes>
       <Route
+        path="/"
+        element={<CategoryPage products={products} searchTerm={searchTerm} />}
+      />
+      <Route
         path="/varsitywares/"
         element={<CategoryPage products={products} searchTerm={searchTerm} />}
       />

@@ -27,6 +27,7 @@ const ProductDetails = ({ products, searchTerm }) => {
           </div>
           <p className="product-description">{description}</p>
           <button className="addCart">add to cart</button>
+          <button className="order-button">Place Order</button>
         </div>
       </div>
       <br />

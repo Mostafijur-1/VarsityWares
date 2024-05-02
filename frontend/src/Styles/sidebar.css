@@ -17,7 +17,7 @@
 }
 .category-bar {
   position: fixed;
-  top: 10px;
+  top: 11px;
   left: 10px;
   z-index: 5;
   cursor: pointer;
@@ -102,13 +102,13 @@
     padding-top: 10%;
     left: -100%;
     width: 100%;
-    height: 100vh;
+    /* height: 100vh; */
   }
 
   .category-bar {
     font-size: 18px;
     position: fixed;
-    top: 26px;
+    top: 14px;
     left: 5px;
 
     color: #333;

@@ -31,9 +31,9 @@ const handleLogin = async (req, res, next) => {
       );
     }
 
-    const accessToken = createJWT({ user }, jwtAccessKey, "1m");
+    const accessToken = createJWT({ user }, jwtAccessKey, "20m");
     res.cookie("accessToken", accessToken, {
-      maxAge: 1 * 60 * 1000,
+      maxAge: 20 * 60 * 1000,
       httpOnly: true,
       // secure: true,
       sameSite: "none",
@@ -102,9 +102,9 @@ const handleRefreshToken = async (req, res, next) => {
 
     console.log(decodedToken.user);
 
-    const accessToken = createJWT(decodedToken.user, jwtAccessKey, "1m");
+    const accessToken = createJWT(decodedToken.user, jwtAccessKey, "20m");
     res.cookie("accessToken", accessToken, {
-      maxAge: 1 * 60 * 1000,
+      maxAge: 20 * 60 * 1000,
       httpOnly: true,
       // secure: true,
       sameSite: "none",

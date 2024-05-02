@@ -88,6 +88,20 @@
   background-color: orange;
   opacity: 0.9;
 }
+.order-button {
+  color: orange;
+  background-color: white;
+  border: 1.5px solid orange;
+  border-radius: 5px;
+  padding: 3.5px 8.5px;
+  margin-left: 15px;
+}
+
+.order-button:hover {
+  color: white;
+  background-color: orange;
+  opacity: 0.9;
+}
 
 .related-head {
   background-color: orange;

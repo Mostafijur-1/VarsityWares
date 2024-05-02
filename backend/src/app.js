@@ -33,7 +33,7 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/products", productRouter);
-app.use("/api/payments", paymentRouter);
+app.use("/api/bkash", paymentRouter);
 app.use("/api/seed", seedRouter);
 app.get("/getData", (req, res) => {
   res.status(200).send({ message: "I am from backend " });

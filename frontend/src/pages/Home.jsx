@@ -1,11 +1,12 @@
-import PageTitle from "../components/PageTitle";
+import AllProducts from "../components/AllProducts";
+// import PageTitle from "../components/PageTitle";
 
 const Home = () => {
   return (
-    <div>
-      <PageTitle title="Home" />
-      <h1>Home</h1>
-    </div>
+    
+      {/* <PageTitle title="Home" /> */}
+      <AllProducts />
+   
   );
 };
 
