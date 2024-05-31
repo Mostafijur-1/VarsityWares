@@ -8,7 +8,7 @@ const productSchema = new Schema(
       required: [true, "Product name is required"],
       trim: true,
       unique: true,
-      minlength: [5, "minimum length of Product name is 5 characters"],
+      minlength: [3, "minimum length of Product name is 3 characters"],
       maxlength: [99, "maximum length of Product name is 99 characters"],
     },
     slug: {
@@ -58,6 +58,17 @@ const productSchema = new Schema(
           `${props.value} is not valid quantity.sold quantity must be greater than or equal 0. `,
       },
     },
+    rating: {
+      type: Number,
+      default: 0,
+      trim: true,
+      validate: {
+        validator: (v) => {
+          v >= 1 && v <= 5;
+        },
+        message: (props) => `${props.value} is not valid rating `,
+      },
+    },
     shipping: {
       type: Number,
       default: 0,
@@ -68,6 +79,11 @@ const productSchema = new Schema(
         message: (props) =>
           `${props.value} is not valid cost.Cost must be greater than or equal 0. `,
       },
+    },
+    varsity: {
+      type: Schema.Types.ObjectId,
+      ref: "Varsity",
+      required: [true, "Please select/type a varsity for this product"],
     },
 
     image: {

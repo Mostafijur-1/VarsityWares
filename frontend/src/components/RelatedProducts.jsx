@@ -13,7 +13,7 @@ const RelatedProducts = ({ products, searchTerm, category }) => {
 
   if (category) {
     filteredProducts = filteredProducts.filter(
-      (product) => product.category === category
+      (product) => product.category.name === category.name
     );
   }
 

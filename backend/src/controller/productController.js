@@ -17,8 +17,17 @@ const {
 
 const handleCreateProduct = async (req, res, next) => {
   try {
-    const { name, description, price, quantity, sold, shipping, category } =
-      req.body;
+    const {
+      name,
+      description,
+      price,
+      quantity,
+      sold,
+      shipping,
+      varsity,
+      category,
+      rating,
+    } = req.body;
     let image = req.file?.path;
     console.log(image);
 
@@ -36,7 +45,9 @@ const handleCreateProduct = async (req, res, next) => {
       quantity,
       sold,
       shipping,
+      varsity,
       category,
+      rating,
     };
 
     if (image) {
@@ -69,33 +80,51 @@ const handleCreateProduct = async (req, res, next) => {
 };
 
 const handleGetProducts = async (req, res, next) => {
-  const search = req.query.search || "";
-  const page = parseInt(req.params.page) || 1;
-  const limit = parseInt(req.params.limit) || 4;
+  try {
+    const search = req.query.search || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const varsity = req.query.varsity || "";
+    const category = req.query.category || "";
+    const priceRange = req.query.priceRange
+      ? req.query.priceRange.split(",").map(Number)
+      : [0, 1000];
 
-  const searchRegExp = new RegExp(".*" + search + ".*", "i");
+    const searchRegExp = new RegExp(".*" + search + ".*", "i");
 
-  const filter = {
-    $or: [{ name: { $regex: searchRegExp } }],
-  };
+    const filter = {
+      $or: [{ name: { $regex: searchRegExp } }],
+      price: { $gte: priceRange[0], $lte: priceRange[1] },
+    };
 
-  const products = await getProducts(page, limit, filter);
-  const count = await Product.find(filter).countDocuments();
+    if (varsity) {
+      filter.varsity = varsity;
+    }
 
-  return successResponse(res, {
-    statusCode: 200,
-    message: "Products fetched successfully",
-    payload: {
-      products,
-      pagination: {
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
-        previousPage: page - 1,
-        nextPage: page + 1,
-        totalProducts: count,
+    if (category) {
+      filter.category = category;
+    }
+
+    const products = await getProducts(page, limit, filter);
+    const count = await Product.find(filter).countDocuments();
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Products fetched successfully",
+      payload: {
+        products,
+        pagination: {
+          totalPages: Math.ceil(count / limit),
+          currentPage: page,
+          previousPage: page > 1 ? page - 1 : null,
+          nextPage: page * limit < count ? page + 1 : null,
+          totalProducts: count,
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const handleGetProduct = async (req, res, next) => {
@@ -132,6 +161,9 @@ const handleUpdateProduct = async (req, res, next) => {
       "quantity",
       "sold",
       "shipping",
+      "varsity",
+      "category",
+      "rating",
     ];
 
     for (let key in req.body) {

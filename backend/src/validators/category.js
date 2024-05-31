@@ -5,8 +5,8 @@ const validateCategory = [
     .trim()
     .notEmpty()
     .withMessage("Category name is required")
-    .isLength({ min: 5 })
-    .withMessage("Category name must be at least 5 characters"),
+    .isLength({ min: 3 })
+    .withMessage("Category name must be at least 3 characters"),
 ];
 
 module.exports = { validateCategory };

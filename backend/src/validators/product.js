@@ -5,8 +5,8 @@ const validateProduct = [
     .trim()
     .notEmpty()
     .withMessage("Product name is required")
-    .isLength({ min: 5 })
-    .withMessage("Product name must be at least 5 characters"),
+    .isLength({ min: 3 })
+    .withMessage("Product name must be at least 3 characters"),
   body("description")
     .trim()
     .notEmpty()
@@ -40,6 +40,7 @@ const validateProduct = [
     .trim()
     .notEmpty()
     .withMessage("Product category is required"),
+  body("varsity").trim().notEmpty().withMessage("varsity is required"),
   body("image").optional().isString().withMessage("User image is optional"),
 ];
 
@@ -75,6 +76,11 @@ const validateProductUpdate = [
     .isFloat({ min: 0 })
     .withMessage("Product shipping cost must positive"),
   body("category").trim(),
+  body("rating")
+    .trim()
+    .optional()
+    .isFloat({ min: 1, max: 5 })
+    .withMessage("Rating  must be between 1 and 5"),
 
   body("image").optional().isString(),
 ];

@@ -13,6 +13,7 @@ const createProduct = async (product) => {
 const getProducts = async (page = 1, limit = 4, filter = {}) => {
   return await Product.find(filter)
     .populate("category")
+    .populate("varsity")
     .skip((page - 1) * limit)
     .limit(limit)
     .sort({ createdAt: -1 });

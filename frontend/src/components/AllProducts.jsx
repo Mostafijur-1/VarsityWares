@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-
 import Sidebar from "./SideBar";
 import SearchBar from "./SearchBar";
 import Loader from "./Loader";
 import AppRoutes from "./AppRoutes";
+import Navbar from "../layouts/Navbar";
 
 import "../Styles/search.css";
 import "../Styles/container.css";
@@ -12,20 +12,34 @@ import "../Styles/loader.css";
 import "../Styles/card.css";
 import "../Styles/productDetails.css";
 import "../Styles/sidebar.css";
-import Navbar from "../layouts/Navbar";
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    selectedVarsity: "",
+    selectedCategory: "",
+    priceRange: [0, 100000],
+  });
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("https://fakestoreapi.com/products");
+        let url = `http://localhost:5000/api/products?`;
+        if (filters.selectedVarsity) {
+          url += `&varsity=${filters.selectedVarsity}`;
+        }
+        if (filters.selectedCategory) {
+          url += `&category=${filters.selectedCategory}`;
+        }
+        if (filters.priceRange) {
+          url += `&priceRange=${filters.priceRange.join(",")}`;
+        }
+        const response = await fetch(url);
         const data = await response.json();
-        setProducts(data);
+        setProducts(data.payload.products);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -34,7 +48,7 @@ const AllProducts = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [filters]);
 
   const handleSearchInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -45,12 +59,22 @@ const AllProducts = () => {
     setSearchTerm("");
   };
 
+  const handleApplyFilters = (newFilters) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+    }));
+  };
+
   return (
     <Router>
       <Navbar />
       <h2 className="mt-3 text-primary heading">Varsity Wares</h2>
-      <Sidebar isVisible={isSidebarVisible} onClose={toggleSidebar} />
-
+      <Sidebar
+        isVisible={isSidebarVisible}
+        onClose={toggleSidebar}
+        onApplyFilters={handleApplyFilters}
+      />
       <div className="main">
         <div className="container">
           <SearchBar
@@ -60,7 +84,13 @@ const AllProducts = () => {
           {loading ? (
             <Loader />
           ) : (
-            <AppRoutes products={products} searchTerm={searchTerm} />
+            <AppRoutes
+              products={products}
+              searchTerm={searchTerm}
+              priceRange={filters.priceRange}
+              selectedVarsity={filters.selectedVarsity}
+              selectedCategory={filters.selectedCategory}
+            />
           )}
         </div>
         {isSidebarVisible && (
