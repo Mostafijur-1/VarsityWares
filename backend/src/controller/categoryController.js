@@ -1,6 +1,6 @@
 const createError = require("http-errors");
 const { successResponse } = require("./responseHandler");
-const { Category } = require("../models/categoryModel");
+const { Category } = require("../model/categoryModel");
 const {
   createCategory,
   getCategories,

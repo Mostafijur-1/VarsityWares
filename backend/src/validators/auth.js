@@ -5,14 +5,8 @@ const validateUserRegistration = [
     .trim()
     .notEmpty()
     .withMessage("name is required")
-    .isLength({ min: 5, max: 40 })
-    .withMessage("Username must be between 5 and 40 characters"),
-  body("email")
-    .trim()
-    .notEmpty()
-    .withMessage("email is required")
-    .isEmail()
-    .withMessage("Please enter a valid email address"),
+    .isLength({ min: 3, max: 40 })
+    .withMessage("Username must be between 3 and 40 characters"),
   body("password")
     .trim()
     .notEmpty()
@@ -25,15 +19,9 @@ const validateUserRegistration = [
     .withMessage("Password must be at least 5 characters long"),
   body("address").trim().notEmpty().withMessage("Address is required"),
   body("phone").trim().notEmpty().withMessage("Phone number is required"),
-  body("image").optional().isString().withMessage("User image is optional"),
 ];
 const validateUserLogin = [
-  body("email")
-    .trim()
-    .notEmpty()
-    .withMessage("email is required")
-    .isEmail()
-    .withMessage("Please enter a valid email address"),
+  body("phone").trim().notEmpty().withMessage("phone is required"),
   body("password").trim().notEmpty().withMessage("password is required"),
 ];
 

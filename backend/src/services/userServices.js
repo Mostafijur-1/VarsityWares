@@ -1,5 +1,5 @@
 const createError = require("http-errors");
-const { User } = require("../models/userModel");
+const { User } = require("../model/user");
 
 const handleUserAction = async (userId, action, options) => {
   try {

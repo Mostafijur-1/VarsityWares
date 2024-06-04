@@ -88,7 +88,7 @@ const handleGetProducts = async (req, res, next) => {
     const category = req.query.category || "";
     const priceRange = req.query.priceRange
       ? req.query.priceRange.split(",").map(Number)
-      : [0, 1000];
+      : [0, 1000000];
 
     const searchRegExp = new RegExp(".*" + search + ".*", "i");
 

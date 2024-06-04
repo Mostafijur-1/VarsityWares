@@ -1,60 +1,82 @@
-const createError = require("http-errors");
+const User = require("../model/user");
+const cloudinary = require("cloudinary");
+const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models/userModel");
+const sendMail = require("../utils/sendMail");
+const sendToken = require("../utils/jwtToken");
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
+const createError = require("http-errors");
 const { successResponse } = require("./responseHandler");
 const { findWithId } = require("../services/findItem");
-const { deleteImage } = require("../helpers/deleteImage");
-const { createJWT } = require("../helpers/jsonWebToken");
 const { jwtSecret, clientURL } = require("../secret");
 const emailNodeMailer = require("../helpers/email");
-const cloudinary = require("../configs/cloudinary");
-const { publicId } = require("../helpers/cloudinaryHelper");
 
-const getUsers = async (req, res, next) => {
+const ErrorHandler = require("../utils/ErrorHandler");
+const {
+  publicId,
+  deleteFilefromCloudinary,
+} = require("../helpers/cloudinaryHelper");
+
+const getUsers = catchAsyncErrors(async (req, res, next) => {
   try {
-    const search = req.query.search || "";
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
+    const user = await User.findById(req.user.id);
 
-    const searchRegExp = new RegExp(".*" + search + ".*", "i");
-
-    const filter = {
-      isAdmin: { $ne: true },
-      $or: [
-        { name: { $regex: searchRegExp } },
-        { email: { $regex: searchRegExp } },
-        { phone: { $regex: searchRegExp } },
-      ],
-    };
-
-    const options = { password: 0 };
-
-    const users = await User.find(filter, options)
-      .limit(limit)
-      .skip((page - 1) * limit);
-
-    if (!users) {
-      throw createError(404, "User not found");
+    if (!user) {
+      return next(new ErrorHandler("User doesn't exists", 400));
     }
-    const count = await User.find(filter).countDocuments();
 
-    return successResponse(res, {
-      statusCode: 200,
-      message: "Users successfully returned",
-      payload: {
-        users,
-        pagination: {
-          totalPages: Math.ceil(count / limit),
-          currentPage: page,
-          previousPage: page - 1 > 0 ? page - 1 : null,
-          nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
-        },
-      },
+    res.status(200).json({
+      success: true,
+      user,
     });
   } catch (error) {
-    next(error);
+    return next(new ErrorHandler(error.message, 500));
   }
-};
+});
+
+const handleLogin = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return next(new ErrorHandler("Please provide the all fields!", 400));
+    }
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return next(new ErrorHandler("User doesn't exists!", 400));
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return next(
+        new ErrorHandler("Please provide the correct information", 400)
+      );
+    }
+
+    sendToken(user, 201, res);
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
+const handleLogout = catchAsyncErrors(async (req, res, next) => {
+  try {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+    res.status(201).json({
+      success: true,
+      message: "Log out successful!",
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
 
 const getUserById = async (req, res, next) => {
   try {
@@ -107,97 +129,92 @@ const deleteUserById = async (req, res, next) => {
 
 const processRegister = async (req, res, next) => {
   try {
-    const { name, email, password, phone, address } = req.body;
-    const image = req.file?.path;
-    console.log(image);
+    const { name, email, password } = req.body;
 
-    if (!image) {
-      throw createError(404, "Image not found");
+    let avatar = req.file?.path;
+
+    console.log("Ava", avatar);
+
+    if (!avatar) {
+      throw createError(404, "avatar not found");
     }
-    if (image.size > 1024 * 1024 * 2) {
-      throw createError(413, "Image size exceeds. Expected less than 2 MB ");
+    const userEmail = await User.findOne({ email });
+
+    if (userEmail) {
+      return next(new ErrorHandler("User already exists", 400));
     }
 
-    const newUser = {
-      name,
-      email,
-      password,
-      phone,
-      address,
+    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+      folder: "varsitywares/user/avatars",
+    });
+
+    const user = {
+      name: name,
+      email: email,
+      password: password,
+      avatar: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
     };
 
-    if (image) {
-      newUser.image = image;
-    }
+    const activationToken = createActivationToken(user);
 
-    const userExists = await User.exists({ email: email });
-    if (userExists) {
-      throw createError(409, "User already exists. Please Login");
-    }
-
-    const token = createJWT(newUser, jwtSecret, "10m");
-    const emailData = {
-      email,
-      subject: "",
-      html: `
-        <h2>Hello ${name} !</h2>
-        <p> Please click here to <a href="${clientURL}/api/users/activate/${token}" target="_blank"> activate your account</p>
-      `,
-    };
+    const activationUrl = `${clientURL}/activation/${activationToken}`;
 
     try {
-      await emailNodeMailer(emailData);
-    } catch (error) {
-      next(createError(500, "Failed to send email"));
-      return;
-    }
-
-    return successResponse(res, {
-      statusCode: 201,
-      message: `please go to your ${email} for completing your registration`,
-      payload: token,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-const activateUserAccount = async (req, res, next) => {
-  try {
-    const token = req.body.token;
-    if (!token) {
-      throw createError(404, "Token not found");
-    }
-
-    const decodedData = jwt.verify(token, jwtSecret);
-    if (!decodedData) {
-      throw createError(401, "User not verified");
-    }
-
-    const image = decodedData.image;
-    if (image) {
-      const response = await cloudinary.uploader.upload(image, {
-        folder: "varsitywares/users",
+      await sendMail({
+        email: user.email,
+        subject: "Activate your account",
+        message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
       });
-      decodedData.image = response.secure_url;
+      res.status(201).json({
+        success: true,
+        message: `please check your email:- ${user.email} to activate your account!`,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
     }
-
-    await User.create(decodedData);
-
-    return successResponse(res, {
-      statusCode: 201,
-      message: "User activated successfully",
-    });
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      error = createError(401, "Token expired");
-    } else if (error.name === "JsonWebTokenError") {
-      error = createError(401, "Invalid token");
-    }
-    // Consider logging the error for debugging
-    console.error(error);
-    next(error);
+    return next(new ErrorHandler(error.message, 400));
   }
 };
+
+// create activation token
+const createActivationToken = (user) => {
+  return jwt.sign(user, process.env.ACTIVATION_SECRET, {
+    expiresIn: "5m",
+  });
+};
+
+const handleActivate = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { activation_token } = req.body;
+
+    const newUser = jwt.verify(activation_token, process.env.ACTIVATION_SECRET);
+
+    if (!newUser) {
+      return next(new ErrorHandler("Invalid token", 400));
+    }
+    const { name, email, password, avatar } = newUser;
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      return next(new ErrorHandler("User already exists", 400));
+    }
+    user = await User.create({
+      name,
+      email,
+      avatar,
+      password,
+    });
+
+    sendToken(user, 201, res);
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+});
 
 const updateUserById = async (req, res, next) => {
   try {
@@ -209,22 +226,11 @@ const updateUserById = async (req, res, next) => {
     let updates = {};
 
     for (let key in req.body) {
-      if (["name", , "password", "phone", "address"].includes(key)) {
+      if (["name", , "password", "address"].includes(key)) {
         updates[key] = req.body[key];
-      } else if (["email"].includes(key)) {
-        throw new Error("Email cannot be updated");
+      } else if (["phone"].includes(key)) {
+        throw new Error("Phone cannot be updated");
       }
-    }
-
-    const image = req.file?.path;
-    if (image) {
-      if (image.size > 1024 * 1024 * 2) {
-        throw createError(413, "Image size exceeds. Expected less than 2 MB ");
-      }
-      const response = await cloudinary.uploader.upload(image, {
-        folder: "varsitywares/users",
-      });
-      updates.image = response.secure_url;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -235,11 +241,6 @@ const updateUserById = async (req, res, next) => {
 
     if (!updatedUser) {
       throw createError(404, "User not found");
-    }
-
-    if (user.image) {
-      const publicID = await publicId(user.image);
-      await deleteFilefromCloudinary("varsitywares/users", publicID);
     }
 
     return successResponse(res, {
@@ -257,6 +258,8 @@ module.exports = {
   getUserById,
   deleteUserById,
   processRegister,
-  activateUserAccount,
   updateUserById,
+  handleActivate,
+  handleLogin,
+  handleLogout,
 };

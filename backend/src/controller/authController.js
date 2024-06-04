@@ -1,7 +1,7 @@
 const createError = require("http-errors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models/userModel");
+const { User } = require("../model/user");
 const { successResponse } = require("./responseHandler");
 const { jwtAccessKey } = require("../secret");
 const { createJWT } = require("../helpers/jsonWebToken");
@@ -9,20 +9,20 @@ const { handleUserAction } = require("../services/userServices");
 
 const handleLogin = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ phone });
     if (!user) {
       throw createError(
         404,
-        "User not found with this email. Please Register at first."
+        "User not found with this phone Number. Please Register at first."
       );
     }
 
     const isPasswordMatched = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatched) {
-      throw createError(404, "Email/password mismatch");
+      throw createError(404, "phone/password mismatch");
     }
     if (user.isBanned) {
       throw createError(
@@ -47,7 +47,7 @@ const handleLogin = async (req, res, next) => {
       sameSite: "none",
     });
 
-    const userSecured = await User.findOne({ email }).select("-password");
+    const userSecured = await User.findOne({ phone }).select("-password");
     return successResponse(res, {
       statusCode: 200,
       message: "User LoggedIn successfully",

@@ -1,7 +1,7 @@
 const express = require("express");
 const categoryRouter = express.Router();
 
-const { isLoggedIn, isLoggedOut, isAdmin } = require("../middlewares/auth");
+const { isAdmin } = require("../middleware/auth");
 const runValidation = require("../validators");
 const {
   handleCreateCategory,
@@ -14,7 +14,7 @@ const { validateCategory } = require("../validators/category");
 
 categoryRouter.post(
   "/",
-  isLoggedIn,
+
   isAdmin,
   validateCategory,
   runValidation,
@@ -25,12 +25,11 @@ categoryRouter.get("/", handleGetCategories);
 categoryRouter.get("/:slug", handleGetCategory);
 categoryRouter.put(
   "/:slug",
-  isLoggedIn,
   isAdmin,
   validateCategory,
   runValidation,
   handleUpdateCategory
 );
-categoryRouter.delete("/:slug", isLoggedIn, isAdmin, handleDeleteCategory);
+categoryRouter.delete("/:slug", isAdmin, handleDeleteCategory);
 
 module.exports = categoryRouter;

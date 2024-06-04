@@ -1,4 +1,4 @@
-const MAX_FILE_SIZE = 2097152;
+const MAX_FILE_SIZE = 20971520;
 const FILE_TYPES = ["image/jpg", "image/jpeg", "image/png"];
 const userImgDir = "public/images/users";
 const productImgDir = "public/images/products";
