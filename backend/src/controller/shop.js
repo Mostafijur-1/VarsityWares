@@ -9,26 +9,20 @@ const cloudinary = require("cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
-const { clientURL } = require("../secret");
-const uploadProductImage = require("../middlewares/uploadProductImage");
 
 // create shop
 router.post(
   "/create-shop",
-  uploadProductImage.single("avatar"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { email } = req.body;
-      let avatar = req.file?.path;
-      console.log(avatar);
-
       const sellerEmail = await Shop.findOne({ email });
       if (sellerEmail) {
         return next(new ErrorHandler("User already exists", 400));
       }
 
-      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-        folder: "varsitywares/shop/avatars",
+      const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+        folder: "avatars",
       });
 
       const seller = {
@@ -46,7 +40,7 @@ router.post(
 
       const activationToken = createActivationToken(seller);
 
-      const activationUrl = `${clientURL}/seller/activation/${activationToken}`;
+      const activationUrl = `http://localhost:3000/seller/activation/${activationToken}`;
 
       try {
         await sendMail({
