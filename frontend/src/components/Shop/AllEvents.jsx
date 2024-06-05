@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Button } from "@material-ui/core";
+import { DataGrid } from "@material-ui/data-grid";
 import React, { useEffect } from "react";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,7 +22,7 @@ const AllEvents = () => {
   const handleDelete = (id) => {
     dispatch(deleteEvent(id));
     window.location.reload();
-  };
+  }
 
   const columns = [
     { field: "id", headerName: "Product Id", minWidth: 150, flex: 0.7 },
@@ -84,7 +84,9 @@ const AllEvents = () => {
       renderCell: (params) => {
         return (
           <>
-            <Button onClick={() => handleDelete(params.id)}>
+            <Button
+            onClick={() => handleDelete(params.id)}
+            >
               <AiOutlineDelete size={20} />
             </Button>
           </>
@@ -96,7 +98,7 @@ const AllEvents = () => {
   const row = [];
 
   events &&
-    events.forEach((item) => {
+  events.forEach((item) => {
       row.push({
         id: item._id,
         name: item.name,

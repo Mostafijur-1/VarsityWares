@@ -30,7 +30,7 @@ export const createProduct =
         discountPrice,
         stock,
         shopId,
-        images
+        images,
       );
       dispatch({
         type: "productCreateSuccess",
@@ -99,9 +99,7 @@ export const getAllProducts = () => async (dispatch) => {
       type: "getAllProductsRequest",
     });
 
-    const { data } = await axios.get(
-      "http://localhost:5000/api/product/get-all-products"
-    );
+    const { data } = await axios.get(`${server}/product/get-all-products`);
     dispatch({
       type: "getAllProductsSuccess",
       payload: data.products,

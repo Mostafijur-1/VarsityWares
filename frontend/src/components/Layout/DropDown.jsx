@@ -18,17 +18,6 @@ const DropDown = ({ categoriesData, setDropDown }) => {
             className={`${styles.noramlFlex}`}
             onClick={() => submitHandle(i)}
           >
-            <img
-              src={i.image_Url}
-              style={{
-                width: "25px",
-                height: "25px",
-                objectFit: "contain",
-                marginLeft: "10px",
-                userSelect: "none",
-              }}
-              alt=""
-            />
             <h3 className="m-3 cursor-pointer select-none">{i.title}</h3>
           </div>
         ))}

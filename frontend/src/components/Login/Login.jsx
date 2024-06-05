@@ -17,7 +17,7 @@ const Login = () => {
 
     await axios
       .post(
-        `http://localhost:5000/api/users/login-user`,
+        `${server}/user/login-user`,
         {
           email,
           password,
@@ -27,7 +27,7 @@ const Login = () => {
       .then((res) => {
         toast.success("Login Success!");
         navigate("/");
-        window.location.reload(true);
+        window.location.reload(true); 
       })
       .catch((err) => {
         toast.error(err.response.data.message);
