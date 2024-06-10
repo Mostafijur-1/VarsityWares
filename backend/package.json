@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "build": "npm i"
+    "build": "npm install"
   },
   "author": "shahriar Sajeeb",
   "license": "ISC",
