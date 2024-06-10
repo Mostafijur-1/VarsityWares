@@ -1,10 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styles from "../../../styles/styles";
 import ProductCard from "../ProductCard/ProductCard";
 
 const FeaturedProduct = () => {
-  const { allProducts } = useSelector((state) => state.products);
+  // const { allProducts } = useSelector((state) => state.products);
+  const [data, setData] = useState([]);
+  const { allProducts, isLoading } = useSelector((state) => state.products);
+
+  useEffect(() => {
+    const allProductsData = allProducts ? [...allProducts] : [];
+    const sortedData = allProductsData?.sort(
+      (a, b) => a.discountPrice - b.discountPrice
+    );
+    setData(sortedData);
+  }, [allProducts]);
 
   return (
     <div>
@@ -13,12 +23,10 @@ const FeaturedProduct = () => {
           <h1 className="mt-2.5">Featured Products</h1>
         </div>
         <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12 border-0">
-          {allProducts && allProducts.length !== 0 && (
+          {data && data.length !== 0 && (
             <>
-              {allProducts &&
-                allProducts.map((i, index) => (
-                  <ProductCard data={i} key={index} />
-                ))}
+              {data &&
+                data.map((i, index) => <ProductCard data={i} key={index} />)}
             </>
           )}
         </div>

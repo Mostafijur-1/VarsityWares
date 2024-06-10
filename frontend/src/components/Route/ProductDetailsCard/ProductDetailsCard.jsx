@@ -5,6 +5,8 @@ import {
   AiOutlineMessage,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
+import { TbCurrencyTaka } from "react-icons/tb";
+
 import { RxCross1 } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import styles from "../../../styles/styles";
@@ -94,7 +96,9 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                       <h3 className={`${styles.shop_name}`}>
                         {data.shop.name}
                       </h3>
-                      <h5 className="pb-3 text-[15px]">{data?.ratings} Ratings</h5>
+                      <h5 className="pb-3 text-[15px]">
+                        {data?.ratings} Ratings
+                      </h5>
                     </div>
                   </Link>
                 </div>
@@ -116,11 +120,19 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                 <p>{data.description}</p>
 
                 <div className="flex pt-3">
-                  <h4 className={`${styles.productDiscountPrice}`}>
-                    {data.discountPrice}$
+                  <h4
+                    className={`flex items-center ${styles.productDiscountPrice}`}
+                  >
+                    {data.discountPrice}
+                    <TbCurrencyTaka className="ml-1" />
                   </h4>
-                  <h3 className={`${styles.price}`}>
-                    {data.originalPrice ? data.originalPrice + "$" : null}
+                  <h3 className={`flex items-center ${styles.price}`}>
+                    {data.originalPrice ? (
+                      <>
+                        {data.originalPrice}
+                        <TbCurrencyTaka className="ml-1" />
+                      </>
+                    ) : null}
                   </h3>
                 </div>
                 <div className="flex items-center mt-12 justify-between pr-3">

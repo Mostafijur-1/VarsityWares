@@ -5,6 +5,8 @@ import {
   AiOutlineMessage,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
+import { TbCurrencyTaka } from "react-icons/tb";
+
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
@@ -85,10 +87,9 @@ const ProductDetails = ({ data }) => {
       0
     );
 
-  const avg =  totalRatings / totalReviewsLength || 0;
+  const avg = totalRatings / totalReviewsLength || 0;
 
   const averageRating = avg.toFixed(2);
-
 
   const handleMessageSubmit = async () => {
     if (isAuthenticated) {
@@ -151,11 +152,19 @@ const ProductDetails = ({ data }) => {
                 <h1 className={`${styles.productTitle}`}>{data.name}</h1>
                 <p>{data.description}</p>
                 <div className="flex pt-3">
-                  <h4 className={`${styles.productDiscountPrice}`}>
-                    {data.discountPrice}$
+                  <h4
+                    className={`flex items-center ${styles.productDiscountPrice}`}
+                  >
+                    {data.discountPrice}
+                    <TbCurrencyTaka className="ml-1" />
                   </h4>
-                  <h3 className={`${styles.price}`}>
-                    {data.originalPrice ? data.originalPrice + "$" : null}
+                  <h3 className={`flex items-center ${styles.price}`}>
+                    {data.originalPrice ? (
+                      <>
+                        {data.originalPrice}
+                        <TbCurrencyTaka className="ml-1" />
+                      </>
+                    ) : null}
                   </h3>
                 </div>
 

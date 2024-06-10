@@ -14,16 +14,23 @@ const ProductsPage = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
+    let d;
     if (categoryData === null) {
-      const d = allProducts;
-      setData(d);
+      d = allProducts;
+      // setData(d);
     } else {
-      const d =
-        allProducts && allProducts.filter((i) => i.category === categoryData);
-      setData(d);
+      d = allProducts && allProducts.filter((i) => i.category === categoryData);
+
+      // setData(d);
     }
+    const allProductsData = d ? [...d] : [];
+    const sortedData = allProductsData?.sort(
+      (a, b) => a.discountPrice - b.discountPrice
+    );
+    setData(sortedData);
+
     //    window.scrollTo(0,0);
-  }, [allProducts]);
+  }, [allProducts, categoryData]);
 
   return (
     <>
