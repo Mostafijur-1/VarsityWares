@@ -4,7 +4,6 @@ import { RiLockPasswordLine } from "react-icons/ri";
 import { HiOutlineReceiptRefund, HiOutlineShoppingBag } from "react-icons/hi";
 import {
   MdOutlineAdminPanelSettings,
-  MdOutlinePassword,
   MdOutlineTrackChanges,
 } from "react-icons/md";
 import { TbAddressBook } from "react-icons/tb";
@@ -17,7 +16,7 @@ import { useSelector } from "react-redux";
 
 const ProfileSidebar = ({ setActive, active }) => {
   const navigate = useNavigate();
- const {user} = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
   const logoutHandler = () => {
     axios
       .get(`${server}/user/logout`, { withCredentials: true })
