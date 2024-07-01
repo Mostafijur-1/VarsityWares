@@ -14,15 +14,17 @@ const uploadFile = require("../middleware/uploadFile");
 // create shop
 router.post(
   "/create-shop",
+  uploadFile.single("avatar"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { email } = req.body;
       const sellerEmail = await Shop.findOne({ email });
       if (sellerEmail) {
-        return next(new ErrorHandler("User already exists", 400));
+        return next(new ErrorHandler("Shop already exists", 400));
       }
+      const avatar = req.file?.path;
 
-      const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
         folder: "avatars",
       });
 
