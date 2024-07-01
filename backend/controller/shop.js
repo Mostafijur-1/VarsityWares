@@ -9,6 +9,7 @@ const cloudinary = require("cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
+const uploadFile = require("../middleware/uploadFile");
 
 // create shop
 router.post(
@@ -203,6 +204,7 @@ router.get(
 // update shop profile picture
 router.put(
   "/update-shop-avatar",
+  uploadFile.single("avatar"),
   isSeller,
   catchAsyncErrors(async (req, res, next) => {
     try {
@@ -212,7 +214,10 @@ router.put(
 
       await cloudinary.v2.uploader.destroy(imageId);
 
-      const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+      const avatar = req.body.avatar;
+      // const avatar = req.file?.path;
+
+      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
         folder: "avatars",
         width: 150,
       });

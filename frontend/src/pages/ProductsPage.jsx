@@ -9,28 +9,26 @@ import styles from "../styles/styles";
 
 const ProductsPage = () => {
   const [searchParams] = useSearchParams();
-  const categoryData = searchParams.get("category");
+  const categoryData = searchParams.get("varsity");
   const { allProducts, isLoading } = useSelector((state) => state.products);
+  const searchTerm = useSelector((state) => state.search.searchTerm);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    let d;
-    if (categoryData === null) {
-      d = allProducts;
-      // setData(d);
-    } else {
-      d = allProducts && allProducts.filter((i) => i.category === categoryData);
-
-      // setData(d);
+    let filteredProducts = allProducts;
+    if (searchTerm) {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-    const allProductsData = d ? [...d] : [];
-    const sortedData = allProductsData?.sort(
-      (a, b) => a.discountPrice - b.discountPrice
-    );
-    setData(sortedData);
+    if (categoryData) {
+      filteredProducts =
+        filteredProducts &&
+        filteredProducts.filter((i) => i.shop.name === categoryData);
+    }
 
-    //    window.scrollTo(0,0);
-  }, [allProducts, categoryData]);
+    setData(filteredProducts);
+  }, [allProducts, categoryData, searchTerm]);
 
   return (
     <>

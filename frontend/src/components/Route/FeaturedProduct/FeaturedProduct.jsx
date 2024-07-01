@@ -4,17 +4,19 @@ import styles from "../../../styles/styles";
 import ProductCard from "../ProductCard/ProductCard";
 
 const FeaturedProduct = () => {
-  // const { allProducts } = useSelector((state) => state.products);
   const [data, setData] = useState([]);
   const { allProducts } = useSelector((state) => state.products);
+  const searchTerm = useSelector((state) => state.search.searchTerm);
 
   useEffect(() => {
-    const allProductsData = allProducts ? [...allProducts] : [];
-    const sortedData = allProductsData?.sort(
-      (a, b) => a.discountPrice - b.discountPrice
-    );
-    setData(sortedData);
-  }, [allProducts]);
+    let filteredProducts = allProducts;
+    if (searchTerm) {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    setData(filteredProducts);
+  }, [allProducts, searchTerm]);
 
   return (
     <div>

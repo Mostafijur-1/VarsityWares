@@ -12,40 +12,27 @@ import { BiMenuAltLeft } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import DropDown from "./DropDown";
 import Navbar from "./Navbar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Cart from "../cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
 import { RxCross1 } from "react-icons/rx";
+import { setSearchTerm } from "../../redux/actions/search";
 
 const Header = ({ activeHeading }) => {
   const { isAuthenticated, user } = useSelector((state) => state.user);
   const { isSeller } = useSelector((state) => state.seller);
   const { wishlist } = useSelector((state) => state.wishlist);
   const { cart } = useSelector((state) => state.cart);
-  const { allProducts } = useSelector((state) => state.products);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchData, setSearchData] = useState(null);
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   const [openCart, setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
-
-  // State variables for selected filters
-  // const [selectedVarsity, setSelectedVarsity] = useState("");
-  // const [selectedCategory, setSelectedCategory] = useState("");
-  // const [selectedPrice, setSelectedPrice] = useState("");
+  const dispatch = useDispatch();
+  const searchTerm = useSelector((state) => state.search);
 
   const handleSearchChange = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-
-    const filteredProducts =
-      allProducts &&
-      allProducts.filter((product) =>
-        product.name.toLowerCase().includes(term.toLowerCase())
-      );
-    setSearchData(filteredProducts);
+    dispatch(setSearchTerm(e.target.value));
   };
 
   window.addEventListener("scroll", () => {
@@ -55,12 +42,6 @@ const Header = ({ activeHeading }) => {
       setActive(false);
     }
   });
-
-  // // Function to handle filter button click
-  // const handleFilterApply = () => {
-  //   // Perform filtering logic based on selectedVarsity, selectedCategory, and selectedPrice
-  //   // You can apply these filters to searchData or fetch new data from the backend
-  // };
 
   return (
     <>
@@ -78,7 +59,6 @@ const Header = ({ activeHeading }) => {
             <input
               type="text"
               placeholder="Search Product..."
-              value={searchTerm}
               onChange={handleSearchChange}
               className="h-[40px] w-full px-2 border-[#000] border-[2px] rounded-md"
             />
@@ -87,25 +67,6 @@ const Header = ({ activeHeading }) => {
               className="absolute right-2 top-1.5 cursor-pointer"
               color="blue"
             />
-            {searchData && searchData.length !== 0 ? (
-              <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4">
-                {searchData &&
-                  searchData.map((i, index) => {
-                    return (
-                      <Link to={`/product/${i._id}`}>
-                        <div className="w-full flex items-start-py-3">
-                          <img
-                            src={`${i.images[0]?.url}`}
-                            alt=""
-                            className="w-[40px] h-[40px] mr-[10px]"
-                          />
-                          <h1>{i.name}</h1>
-                        </div>
-                      </Link>
-                    );
-                  })}
-              </div>
-            ) : null}
           </div>
 
           <div className={`${styles.button}`}>
@@ -283,27 +244,6 @@ const Header = ({ activeHeading }) => {
                   value={searchTerm}
                   onChange={handleSearchChange}
                 />
-                {searchData && (
-                  <div className="absolute bg-[#fff] z-10 shadow w-full left-0 p-3">
-                    {searchData.map((i) => {
-                      const d = i.name;
-
-                      const Product_name = d.replace(/\s+/g, "-");
-                      return (
-                        <Link to={`/product/${Product_name}`}>
-                          <div className="flex items-center">
-                            <img
-                              src={i.image_Url[0]?.url}
-                              alt=""
-                              className="w-[50px] mr-2"
-                            />
-                            <h5>{i.name}</h5>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
 
               <Navbar active={activeHeading} />
