@@ -9,6 +9,9 @@ const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const uploadFile = require("../middleware/uploadFile");
+const path = require("path");
+
+const defaultAvatarPath = path.join(__dirname, "../defaultImage/default.png");
 
 // create user
 router.post(
@@ -24,7 +27,7 @@ router.post(
         return next(new ErrorHandler("User already exists", 400));
       }
 
-      const myCloud = await cloudinary.v2.uploader.upload(avatar, {
+      const myCloud = await cloudinary.v2.uploader.upload(defaultAvatarPath, {
         folder: "avatars",
       });
 
@@ -93,8 +96,8 @@ router.post(
       user = await User.create({
         name,
         email,
-        avatar,
         password,
+        avatar,
       });
 
       sendToken(user, 201, res);
@@ -220,16 +223,20 @@ router.put(
 // update user avatar
 router.put(
   "/update-avatar",
+  uploadFile.single("avatar"),
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
       let existsUser = await User.findById(req.user.id);
-      if (req.body.avatar !== "") {
-        const imageId = existsUser.avatar.public_id;
+      const avatar = req.file?.path;
+      if (avatar) {
+        if (existsUser.avatar.public_id) {
+          const imageId = existsUser.avatar.public_id;
 
-        await cloudinary.v2.uploader.destroy(imageId);
+          await cloudinary.v2.uploader.destroy(imageId);
+        }
 
-        const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+        const myCloud = await cloudinary.v2.uploader.upload(avatar, {
           folder: "avatars",
           width: 150,
         });

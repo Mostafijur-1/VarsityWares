@@ -216,8 +216,8 @@ router.put(
 
       await cloudinary.v2.uploader.destroy(imageId);
 
-      const avatar = req.body.avatar;
-      // const avatar = req.file?.path;
+      // const avatar = req.body.avatar;
+      const avatar = req.file?.path;
 
       const myCloud = await cloudinary.v2.uploader.upload(avatar, {
         folder: "avatars",

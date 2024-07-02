@@ -2,41 +2,23 @@ import React, { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
-import { RxAvatar } from "react-icons/rx";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import { Formik, Form, Field } from "formik";
 
-const Singup = () => {
+const Signup = () => {
   const [visible, setVisible] = useState(false);
-  const [avatar, setAvatar] = useState(null);
-
-  const handleFileInputChange = (e, setFieldValue) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setAvatar(reader.result);
-      }
-    };
-    reader.readAsDataURL(e.target.files[0]);
-    setFieldValue("avatar", e.target.files[0]);
-  };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    const formDataObj = new FormData();
-    formDataObj.append("name", values.name);
-    formDataObj.append("email", values.email);
-    formDataObj.append("password", values.password);
-    formDataObj.append("avatar", values.avatar);
-
     try {
-      const res = await axios.post(`${server}/user/create-user`, formDataObj);
-      toast.success(res.data.message);
+      const res = await axios.post(`${server}/user/create-user`, values, {
+        withCredentials: true,
+      });
       resetForm();
-      setAvatar(null);
+      toast.success(res.data.message);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "An error occurred");
     } finally {
       setSubmitting(false);
     }
@@ -52,11 +34,11 @@ const Singup = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <Formik
-            initialValues={{ name: "", email: "", password: "", avatar: null }}
+            initialValues={{ name: "", email: "", password: "" }}
             onSubmit={handleSubmit}
           >
-            {({ isSubmitting, setFieldValue }) => (
-              <Form className="space-y-6">
+            {({ isSubmitting }) => (
+              <Form className="space-y-6" encType="multipart/form-data">
                 <div>
                   <label
                     htmlFor="name"
@@ -122,42 +104,6 @@ const Singup = () => {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="avatar"
-                    className="block text-sm font-medium text-gray-700"
-                  ></label>
-                  <div className="mt-2 flex items-center">
-                    <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                      {avatar ? (
-                        <img
-                          src={avatar}
-                          alt="avatar"
-                          className="h-full w-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <RxAvatar className="h-8 w-8" />
-                      )}
-                    </span>
-                    <label
-                      htmlFor="file-input"
-                      className="ml-5 flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                    >
-                      <span>Upload a file</span>
-                      <input
-                        type="file"
-                        name="avatar"
-                        id="file-input"
-                        accept=".jpg,.jpeg,.png"
-                        onChange={(e) =>
-                          handleFileInputChange(e, setFieldValue)
-                        }
-                        className="sr-only"
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                <div>
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -181,4 +127,4 @@ const Singup = () => {
   );
 };
 
-export default Singup;
+export default Signup;

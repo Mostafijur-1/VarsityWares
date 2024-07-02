@@ -30,7 +30,8 @@ const ProfileContent = ({ active }) => {
   const [email, setEmail] = useState(user && user.email);
   const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber);
   const [password, setPassword] = useState("");
-  const [avatar, setAvatar] = useState(null);
+  const [avatar, setAvatar] = useState(user?.avatar?.url);
+
   const dispatch = useDispatch();
 
   console.log(avatar);
@@ -51,31 +52,36 @@ const ProfileContent = ({ active }) => {
     dispatch(updateUserInformation(name, email, phoneNumber, password));
   };
 
-  const handleImage = async (e) => {
-    const reader = new FileReader();
+  const handleImage = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          setAvatar(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+      uploadAvatar(file);
+    }
+  };
 
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setAvatar(reader.result);
-        axios
-          .put(
-            `${server}/user/update-avatar`,
-            { avatar: reader.result },
-            {
-              withCredentials: true,
-            }
-          )
-          .then((response) => {
-            dispatch(loadUser());
-            toast.success("avatar updated successfully!");
-          })
-          .catch((error) => {
-            toast.error(error);
-          });
-      }
-    };
+  const uploadAvatar = async (file) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
 
-    reader.readAsDataURL(e.target.files[0]);
+    try {
+      await axios.put(`${server}/user/update-avatar`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+      dispatch(loadUser());
+      toast.success("Avatar updated successfully!");
+    } catch (error) {
+      toast.error("Failed to update avatar");
+    }
   };
 
   return (

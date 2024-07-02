@@ -17,40 +17,41 @@ const ShopSettings = () => {
   const [address, setAddress] = useState(seller && seller.address);
   const [phoneNumber, setPhoneNumber] = useState(seller && seller.phoneNumber);
   const [zipCode, setZipcode] = useState(seller && seller.zipCode);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
 
   const handleImage = async (e) => {
     const reader = new FileReader();
-
     reader.onload = () => {
       if (reader.readyState === 2) {
         setAvatar(reader.result);
+        const formData = new FormData();
+        formData.append("avatar", e.target.files[0]);
+        setLoading(true);
         axios
-          .put(
-            `${server}/shop/update-shop-avatar`,
-            { avatar: reader.result },
-            {
-              withCredentials: true,
-            }
-          )
+          .put(`${server}/shop/update-shop-avatar`, formData, {
+            withCredentials: true,
+          })
           .then((res) => {
             dispatch(loadSeller());
             toast.success("Avatar updated successfully!");
           })
           .catch((error) => {
             toast.error(error.response.data.message);
+          })
+          .finally(() => {
+            setLoading(false);
           });
       }
     };
-
     reader.readAsDataURL(e.target.files[0]);
   };
 
   const updateHandler = async (e) => {
     e.preventDefault();
-
-    await axios
+    setLoading(true);
+    axios
       .put(
         `${server}/shop/update-seller-info`,
         {
@@ -63,11 +64,14 @@ const ShopSettings = () => {
         { withCredentials: true }
       )
       .then((res) => {
-        toast.success("Shop info updated succesfully!");
+        toast.success("Shop info updated successfully!");
         dispatch(loadSeller());
       })
       .catch((error) => {
         toast.error(error.response.data.message);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -77,8 +81,8 @@ const ShopSettings = () => {
         <div className="w-full flex items-center justify-center">
           <div className="relative">
             <img
-              src={avatar ? avatar : `${seller.avatar?.url}`}
-              alt=""
+              src={avatar ? avatar : seller?.avatar?.url}
+              alt="Shop Avatar"
               className="w-[200px] h-[200px] rounded-full cursor-pointer"
             />
             <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[10px] right-[15px]">
@@ -99,11 +103,14 @@ const ShopSettings = () => {
         <form className="flex flex-col items-center" onSubmit={updateHandler}>
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
             <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Name</label>
+              <label htmlFor="name" className="block pb-2">
+                Shop Name
+              </label>
             </div>
             <input
-              type="name"
-              placeholder={`${seller.name}`}
+              type="text"
+              id="name"
+              placeholder="Enter Shop Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
@@ -112,15 +119,14 @@ const ShopSettings = () => {
           </div>
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
             <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop description</label>
+              <label htmlFor="description" className="block pb-2">
+                Shop Description
+              </label>
             </div>
             <input
-              type="name"
-              placeholder={`${
-                seller?.description
-                  ? seller.description
-                  : "Enter your shop description"
-              }`}
+              type="text"
+              id="description"
+              placeholder="Enter Shop Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
@@ -128,11 +134,14 @@ const ShopSettings = () => {
           </div>
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
             <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Address</label>
+              <label htmlFor="address" className="block pb-2">
+                Shop Address
+              </label>
             </div>
             <input
-              type="name"
-              placeholder={seller?.address}
+              type="text"
+              id="address"
+              placeholder="Enter Shop Address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
@@ -142,11 +151,14 @@ const ShopSettings = () => {
 
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
             <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Phone Number</label>
+              <label htmlFor="phoneNumber" className="block pb-2">
+                Shop Phone Number
+              </label>
             </div>
             <input
-              type="number"
-              placeholder={seller?.phoneNumber}
+              type="text"
+              id="phoneNumber"
+              placeholder="Enter Shop Phone Number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
@@ -156,11 +168,14 @@ const ShopSettings = () => {
 
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
             <div className="w-full pl-[3%]">
-              <label className="block pb-2">Shop Zip Code</label>
+              <label htmlFor="zipCode" className="block pb-2">
+                Shop Zip Code
+              </label>
             </div>
             <input
-              type="number"
-              placeholder={seller?.zipCode}
+              type="text"
+              id="zipCode"
+              placeholder="Enter Shop Zip Code"
               value={zipCode}
               onChange={(e) => setZipcode(e.target.value)}
               className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
@@ -169,13 +184,13 @@ const ShopSettings = () => {
           </div>
 
           <div className="w-[100%] flex items-center flex-col 800px:w-[50%] mt-5">
-            <input
+            <button
               type="submit"
-              value="Update Shop"
-              className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-              required
-              readOnly
-            />
+              className={`${styles.button} !w-[95%] mb-4 800px:mb-0`}
+              disabled={loading}
+            >
+              {loading ? "Updating..." : "Update Shop"}
+            </button>
           </div>
         </form>
       </div>
