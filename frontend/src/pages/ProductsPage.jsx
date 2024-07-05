@@ -9,7 +9,8 @@ import styles from "../styles/styles";
 
 const ProductsPage = () => {
   const [searchParams] = useSearchParams();
-  const categoryData = searchParams.get("varsity");
+  const categoryData = searchParams.get("category");
+  const varsityData = searchParams.get("varsity");
   const { allProducts, isLoading } = useSelector((state) => state.products);
   const searchTerm = useSelector((state) => state.search.searchTerm);
   const [data, setData] = useState([]);
@@ -24,11 +25,16 @@ const ProductsPage = () => {
     if (categoryData) {
       filteredProducts =
         filteredProducts &&
-        filteredProducts.filter((i) => i.shop.name === categoryData);
+        filteredProducts.filter((i) => i.category === categoryData);
+    }
+    if (varsityData) {
+      filteredProducts =
+        filteredProducts &&
+        filteredProducts.filter((i) => i.shop.name === varsityData);
     }
 
     setData(filteredProducts);
-  }, [allProducts, categoryData, searchTerm]);
+  }, [allProducts, categoryData, varsityData, searchTerm]);
 
   return (
     <>

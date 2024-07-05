@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const DropDown = ({ categoriesData, varsityData, setDropDown }) => {
+const Sidebar = ({
+  categoriesData,
+  varsityData,
+  setShowSidebar,
+  sidebarRef,
+  closeSidebar,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -20,12 +26,24 @@ const DropDown = ({ categoriesData, varsityData, setDropDown }) => {
     if (selectedCategory) url += `category=${selectedCategory}&`;
     if (selectedVarsity) url += `varsity=${selectedVarsity}`;
     navigate(url);
-    setDropDown(false);
+    closeSidebar();
   };
 
   return (
-    <div className="pb-4 w-[270px] bg-[#fff] absolute z-30 rounded-b-md shadow-sm">
-      <div className="p-3">
+    <div
+      ref={sidebarRef}
+      className="fixed top-0 left-0 w-64 h-full bg-white shadow-md transition-transform transform -translate-x-full z-40"
+    >
+      <div className="flex justify-end p-2">
+        <button
+          className="text-gray-500 hover:text-gray-800 rounded-lg  text-4xl"
+          onClick={closeSidebar}
+        >
+          &times;
+        </button>
+      </div>
+
+      <div className="p-4">
         <h3 className="font-bold">Categories</h3>
         <ul>
           <li className="cursor-pointer select-none">
@@ -58,7 +76,7 @@ const DropDown = ({ categoriesData, varsityData, setDropDown }) => {
         </ul>
       </div>
 
-      <div className="p-3">
+      <div className="p-4">
         <h3 className="font-bold">Varsity</h3>
         <ul>
           <li className="cursor-pointer select-none">
@@ -91,16 +109,16 @@ const DropDown = ({ categoriesData, varsityData, setDropDown }) => {
         </ul>
       </div>
 
-      <div className="p-3">
+      <div className="p-4">
         <button
           className="bg-blue-500 text-white p-2 rounded cursor-pointer"
           onClick={handleSubmit}
         >
-          Submit
+          filter products
         </button>
       </div>
     </div>
   );
 };
 
-export default DropDown;
+export default Sidebar;

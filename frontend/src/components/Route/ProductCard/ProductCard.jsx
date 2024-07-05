@@ -61,7 +61,7 @@ const ProductCard = ({ data, isEvent }) => {
 
   return (
     <>
-      <div className="w-full h-[370px] bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
+      <div className="w-full h-[350px] bg-transparent rounded-lg shadow p-3 relative cursor-pointer hover:bg-white">
         <div className="flex justify-end"></div>
         <Link
           to={`${
@@ -121,7 +121,7 @@ const ProductCard = ({ data, isEvent }) => {
                 ) : null}
               </h4>
             </div>
-            <span className="font-[400] text-[17px] text-[#68d284]">
+            <span className="font-[400] text-[17px] text-slate-400">
               {data?.sold_out} sold
             </span>
           </div>
