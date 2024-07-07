@@ -68,7 +68,7 @@ const Header = ({ activeHeading }) => {
           <div>
             <Link to="/">
               <h1 className="font-semibold text-4xl flex items-center space-x-2 font-poppins">
-                varsity<span className="text-[#00c9f6]">wares</span>
+                varsity<span className="text-sky-500">wares</span>
               </h1>
             </Link>
           </div>
@@ -78,7 +78,7 @@ const Header = ({ activeHeading }) => {
               type="text"
               placeholder="Search Product..."
               onChange={handleSearchChange}
-              className="h-[40px] w-full px-2 border-[#00c9f6] border-[2px] rounded-md"
+              className="h-[40px] w-full px-2 border-sky-400 border-[2px] rounded-md"
             />
             <AiOutlineSearch
               size={25}
@@ -151,7 +151,7 @@ const Header = ({ activeHeading }) => {
       <div
         className={`${
           active === true ? "shadow-sm fixed top-0 left-0 z-10" : null
-        } transition hidden 800px:flex items-center justify-between w-full bg-[#00c9f6] h-[70px]`}
+        } transition hidden 800px:flex items-center justify-between w-full bg-gradient-to-b from-sky-400 to-sky-500 h-[70px]`}
       >
         <div
           className={`${styles.section} relative ${styles.noramlFlex} justify-between`}
@@ -182,7 +182,6 @@ const Header = ({ activeHeading }) => {
             <Sidebar
               categoriesData={categoriesData}
               varsityData={varsityData}
-              setShowSidebar={setShowSidebar}
               sidebarRef={sidebarRef}
               closeSidebar={closeSidebar}
             />

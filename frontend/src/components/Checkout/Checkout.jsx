@@ -19,10 +19,8 @@ const Checkout = () => {
   const [address2, setAddress2] = useState("");
   const [zipCode, setZipCode] = useState(null);
   const [couponCode, setCouponCode] = useState("");
-  const [couponCodeData, setCouponCodeData] = useState(null);
-  const [discountPrice, setDiscountPrice] = useState(null);
+  const [appliedCoupons, setAppliedCoupons] = useState([]);
   const navigate = useNavigate();
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -50,7 +48,7 @@ const Checkout = () => {
         totalPrice,
         subTotalPrice,
         shipping,
-        discountPrice,
+        totalDiscount,
         shippingAddress,
         user,
       };
@@ -66,12 +64,18 @@ const Checkout = () => {
     0
   );
 
-  // this is shipping cost variable
-  const shipping = subTotalPrice * 0.1;
+  const uniqueShops = new Set(cart.map((item) => item.shopId));
+  const shipping = uniqueShops.size * 100;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const name = couponCode;
+
+    if (appliedCoupons.some((coupon) => coupon.code === name)) {
+      toast.error("This coupon has already been used!");
+      setCouponCode("");
+      return;
+    }
 
     await axios.get(`${server}/coupon/get-coupon-value/${name}`).then((res) => {
       const shopId = res.data.couponCode?.shopId;
@@ -89,25 +93,25 @@ const Checkout = () => {
             0
           );
           const discountPrice = (eligiblePrice * couponCodeValue) / 100;
-          setDiscountPrice(discountPrice);
-          setCouponCodeData(res.data.couponCode);
+          setAppliedCoupons((prevCoupons) => [
+            ...prevCoupons,
+            { code: name, discount: discountPrice, shopId: shopId },
+          ]);
           setCouponCode("");
         }
-      }
-      if (res.data.couponCode === null) {
-        toast.error("Coupon code doesn't exists!");
+      } else {
+        toast.error("Coupon code doesn't exist!");
         setCouponCode("");
       }
     });
   };
 
-  const discountPercentenge = couponCodeData ? discountPrice : "";
+  const totalDiscount = appliedCoupons.reduce(
+    (acc, coupon) => acc + coupon.discount,
+    0
+  );
 
-  const totalPrice = couponCodeData
-    ? (subTotalPrice + shipping - discountPercentenge).toFixed(2)
-    : (subTotalPrice + shipping).toFixed(2);
-
-  console.log(discountPercentenge);
+  const totalPrice = (subTotalPrice + shipping - totalDiscount).toFixed(2);
 
   return (
     <div className="w-full flex flex-col items-center py-8">
@@ -137,7 +141,7 @@ const Checkout = () => {
             subTotalPrice={subTotalPrice}
             couponCode={couponCode}
             setCouponCode={setCouponCode}
-            discountPercentenge={discountPercentenge}
+            totalDiscount={totalDiscount}
           />
         </div>
       </div>
@@ -317,8 +321,11 @@ const CartData = ({
   subTotalPrice,
   couponCode,
   setCouponCode,
-  discountPercentenge,
+  totalDiscount,
 }) => {
+  console.log(totalDiscount);
+  const { cart } = useSelector((state) => state.cart);
+  const uniqueShops = new Set(cart.map((item) => item.shopId));
   return (
     <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
       <div className="flex justify-between">
@@ -330,7 +337,9 @@ const CartData = ({
       </div>
       <br />
       <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">shipping:</h3>
+        <h3 className="text-[16px] font-[400] text-[#000000a4]">
+          Shipping: (for {uniqueShops.size} shop)
+        </h3>
         <h5 className="flex items-center text-[18px] font-[600]">
           {shipping.toFixed(2)}
           <TbCurrencyTaka />
@@ -340,11 +349,11 @@ const CartData = ({
       <div className="flex justify-between border-b pb-3">
         <h3 className="text-[16px] font-[400] text-[#000000a4]">Discount:</h3>
         <h5 className="text-[18px] font-[600] flex items-center">
-          {discountPercentenge ? "- " : null}
-          {discountPercentenge ? (
+          {totalDiscount ? "- " : null}
+          {totalDiscount ? (
             <TbCurrencyTaka className="inline-block mr-1" />
           ) : null}
-          {discountPercentenge ? discountPercentenge.toString() : null}
+          {totalDiscount ? totalDiscount.toFixed(2) : null}
         </h5>
       </div>
       <h5 className="text-[18px] font-[600] pt-3 text-right">

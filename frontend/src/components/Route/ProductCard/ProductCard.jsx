@@ -77,7 +77,9 @@ const ProductCard = ({ data, isEvent }) => {
           />
         </Link>
         <Link to={`/shop/preview/${data?.shop._id}`}>
-          <h5 className={`${styles.shop_name}`}>{data.shop.name}</h5>
+          <h5 className={`${styles.shop_name} inline-block`}>
+            {data.shop.name}
+          </h5>
         </Link>
         <Link
           to={`${
